@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
-//import { useNavigate } from 'react-router-dom';
-import {auth,signInWithEmailAndPassword} from '../firebase.js';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { auth, signInWithEmailAndPassword } from '../firebase.js';
 import { router } from 'expo-router';
-
-
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
-  //const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,9 +16,7 @@ export default function SignIn() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Successfully signed in
-      //navigate('/dashboard'); // redirect to dashboard or home page
-      router.push(`./about`)
+      router.push('/about');
     } catch (err) {
       setError(err.message);
       if (err.code === 'auth/user-not-found') {
@@ -38,19 +32,49 @@ export default function SignIn() {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <SignInForm 
-        email={email}
-        setEmail={setEmail}
-        password={password}
-        setPassword={setPassword}
-        error={error}
-        loading={loading}
-        handleSubmit={handleSubmit}
-      />
+    <View style={styles.container}>
+      <View style={styles.signinContainer}>
+        <Text style={styles.title}>Sign In</Text>
+        
+        {error ? <Text style={styles.errorMessage}>{error}</Text> : null}
+        
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Enter your email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </View>
+        
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Enter your password"
+            secureTextEntry
+          />
+        </View>
+        
+        <TouchableOpacity 
+          style={[styles.button, loading && styles.disabledButton]}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? 'Signing In...' : 'Sign In'}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
-);
+  );
 }
+
 
 const styles = StyleSheet.create({
   container: {
