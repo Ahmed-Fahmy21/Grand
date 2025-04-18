@@ -3,6 +3,7 @@ import { FontAwesome } from '@expo/vector-icons';
 
 export default function Layout() {
   return (
+
     <Tabs>
       <Tabs.Screen
         name="index" 
@@ -24,6 +25,18 @@ export default function Layout() {
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="auth" 
+        options={{
+          title: "auth",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <FontAwesome name="info" size={24} color={color} />
+          ),
+        }}
+      />
+
       <Tabs.Screen
         name="rooms" 
         options={{

@@ -1,5 +1,6 @@
 {
   "expo": {
+
     "name": "Grand",
     "slug": "Grand",
     "scheme": "Grand",
@@ -8,6 +9,8 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+     "plugins": [
+    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
