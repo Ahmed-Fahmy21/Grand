@@ -47,6 +47,16 @@ export default function Layout() {
           ),
         }}
       />
+            <Tabs.Screen
+        name="register" 
+        options={{
+          title: "Register",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <FontAwesome name="plus" size={24} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
