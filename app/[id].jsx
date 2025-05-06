@@ -1,4 +1,4 @@
-// app/singleRoom/[id].js
+
 import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -6,7 +6,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 export default function RoomDetails() {
-  const { id } = useLocalSearchParams(); // يجب أن يكون نفس المتغير "id" هنا
+  const { id } = useLocalSearchParams(); 
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
 
