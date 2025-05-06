@@ -1,10 +1,8 @@
-// components/RoomsSection.js
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, Dimensions, Image, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-// تأكد من صحة أسماء الصور في مجلد assets
 import room1 from '../assets/room-1.jpg';
 import room2 from '../assets/room2.jpg';
 import room3 from '../assets/room3.jpg';
