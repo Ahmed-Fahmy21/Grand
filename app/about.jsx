@@ -1,3 +1,4 @@
+
 import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
