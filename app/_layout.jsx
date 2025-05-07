@@ -8,9 +8,7 @@ function CartTabIcon({ color }) {
   const { totalItems } = useCart();
   
   return (
-    
     <View style={{ position: 'relative' }}>
-      
       <FontAwesome name="shopping-cart" size={24} color={color} />
       {totalItems > 0 && (
         <View style={{
@@ -27,9 +25,7 @@ function CartTabIcon({ color }) {
           <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>
             {totalItems}
           </Text>
-          
         </View>
-        
       )}
     </View>
   );
@@ -38,7 +34,17 @@ function CartTabIcon({ color }) {
 export default function Layout() {
   return (
     <CartProvider>
-      <Tabs>
+      <Tabs
+        screenOptions={{
+          // This will hide any routes with square brackets in the name
+          tabBarItemStyle: ({ route }) => {
+            const hiddenRoutes = ['[id]']; // Add any other routes you want to hide
+            return {
+              display: hiddenRoutes.includes(route.name) ? 'none' : 'flex'
+            }
+          }
+        }}
+      >
         <Tabs.Screen
           name="index"
           options={{
@@ -83,14 +89,26 @@ export default function Layout() {
             ),
           }}
         />
-        <Tabs.Screen
-          name="cart"
+         <Tabs.Screen
+          name="Cart"
           options={{
             title: "Cart",
-            headerShown: false,
-            tabBarIcon: ({ color }) => <CartTabIcon color={color} />
-          }}
+            headerShown: true,
+            tabBarIcon: ({ color }) => (
+              <FontAwesome name="cart-plus" size={24} color={color} />
+
+),          
+}}
         />
+       <Tabs.Screen
+        name="[id]"
+        options={{
+          headerShown: false,
+        tabBarButton: () => null, 
+        }}
+       />
+
+       
       </Tabs>
     </CartProvider>
   );
