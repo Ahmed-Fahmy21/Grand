@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { db } from '../config/firebase';
+import { collection, addDoc, getDocs } from 'firebase/firestore';
 
 export default function ReviewsSection() {
   const [reviews, setReviews] = useState([]);
@@ -11,46 +12,45 @@ export default function ReviewsSection() {
   const [rating, setRating] = useState(3);
 
   useEffect(() => {
-    loadReviews();
+    fetchReviews();
   }, []);
 
-  const loadReviews = async () => {
+  const fetchReviews = async () => {
     try {
-      const saved = await AsyncStorage.getItem('reviews');
-      if (saved) setReviews(JSON.parse(saved));
+      const snapshot = await getDocs(collection(db, 'reviews'));
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setReviews(data);
     } catch (e) {
-      console.error('Error loading reviews', e);
+      console.error('Error loading reviews:', e);
     }
   };
 
-  const saveReviews = async (newReviews) => {
-    try {
-      await AsyncStorage.setItem('reviews', JSON.stringify(newReviews));
-    } catch (e) {
-      console.error('Error saving reviews', e);
-    }
-  };
-
-  const addReview = () => {
+  const addReview = async () => {
     if (!name || !comment) {
       Alert.alert('Please enter both name and comment');
       return;
     }
 
-    const newReview = {
-      id: Date.now().toString(),
-      name,
-      rating,
-      comment,
-    };
+    try {
+      const newReview = {
+        name,
+        rating,
+        comment,
+        createdAt: new Date()
+      };
 
-    const updated = [newReview, ...reviews];
-    setReviews(updated);
-    saveReviews(updated);
+      const docRef = await addDoc(collection(db, 'reviews'), newReview);
+      setReviews([{ id: docRef.id, ...newReview }, ...reviews]);
 
-    setName('');
-    setComment('');
-    setRating(3);
+      setName('');
+      setComment('');
+      setRating(3);
+    } catch (e) {
+      console.error('Error adding review:', e);
+    }
   };
 
   const renderItem = ({ item }) => (
@@ -77,25 +77,24 @@ export default function ReviewsSection() {
 
       <Text style={styles.label}>Rating: {rating} stars</Text>
       <View style={{ alignItems: 'center' }}>
-      <Slider
-      
-        style={{ width: '20%', height: 30 }}
-        minimumValue={1}
-        maximumValue={5}
-        step={1}
-        value={rating}
-        onValueChange={setRating}
-        minimumTrackTintColor="#E64A19"
-        maximumTrackTintColor="#ddd"
-        thumbTintColor="#E64A19"
-      />
-</View>
-<View style={{ alignItems: 'center' }}>
-  <TouchableOpacity style={styles.submitBtn} onPress={addReview}>
-    <Text style={styles.submitText}>Submit Review</Text>
-  </TouchableOpacity>
-</View>
+        <Slider
+          style={{ width: '20%', height: 30 }}
+          minimumValue={1}
+          maximumValue={5}
+          step={1}
+          value={rating}
+          onValueChange={setRating}
+          minimumTrackTintColor="#E64A19"
+          maximumTrackTintColor="#ddd"
+          thumbTintColor="#E64A19"
+        />
+      </View>
 
+      <View style={{ alignItems: 'center' }}>
+        <TouchableOpacity style={styles.submitBtn} onPress={addReview}>
+          <Text style={styles.submitText}>Submit Review</Text>
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         data={reviews}
@@ -133,8 +132,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 5,
-    width: '20%',
-    
+    width: '40%',
   },
   submitText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });
