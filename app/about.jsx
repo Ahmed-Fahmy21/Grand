@@ -47,7 +47,7 @@ export default function About() {
         </View>
         <View style={styles.contactItem}>
           <FontAwesome name="map-marker" size={18} color="red" />
-          <Text style={styles.contactText}>23 EL Wehda Street, Giza</Text>
+          <Text style={styles.contactText}>23 EL Wehda Street, Imbaba</Text>
         </View>
       </View>
     </ScrollView>
