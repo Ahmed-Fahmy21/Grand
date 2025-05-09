@@ -9,7 +9,7 @@ const ChatWebView = () => {
     return (
       <View style={styles.container}>
         <iframe
-          src="https://tesdt-w1si.vercel.app/"
+          src="https://tesdt-wrhu.vercel.app/"
           width="100%"
           height="100%"
           style={{ borderWidth: 0 }}
@@ -21,7 +21,7 @@ const ChatWebView = () => {
   return (
     <View style={styles.container}>
       <WebView
-        source={{ uri: 'https://tesdt-w1si.vercel.app/' }}
+        source={{ uri: 'https://tesdt-wrhu.vercel.app/' }}
         style={{ flex: 1 }}
       />
     </View>
