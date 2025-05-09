@@ -9,6 +9,7 @@ import { useCart } from '../context/CartContext';
 export default function Rooms() {
   const [rooms, setRooms] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc');
   const router = useRouter();
   const { cart, addToCart, removeFromCart, totalItems } = useCart();
 
@@ -27,14 +28,16 @@ export default function Rooms() {
     room.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const isInCart = (roomId) => {
-    return cart.some(item => item.id === roomId);
-  };
+  const sortedRooms = [...filteredRooms].sort((a, b) => {
+    return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
+  });
+
+  const isInCart = (roomId) => cart.some(item => item.id === roomId);
 
   const renderRoomItem = ({ item: room }) => (
     <Pressable
       style={styles.roomItem}
-      onPress={() => router.push(`/${room.id}`)} 
+      onPress={() => router.push(`/${room.id}`)}
     >
       <Image source={{ uri: room.image }} style={styles.roomImage} />
       <View style={styles.roomInfo}>
@@ -42,17 +45,17 @@ export default function Rooms() {
         <Text style={styles.roomPrice}>${room.price} / night</Text>
         <Text style={styles.roomDescription} numberOfLines={2}>{room.description}</Text>
       </View>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.cartButton}
-        onPress={(e) => {
+        onPress={e => {
           e.stopPropagation();
           isInCart(room.id) ? removeFromCart(room.id) : addToCart(room);
         }}
       >
-        <FontAwesome 
-          name={isInCart(room.id) ? "check-circle" : "cart-plus"} 
-          size={24} 
-          color={isInCart(room.id) ? "#4CAF50" : "#FF9800"} 
+        <FontAwesome
+          name={isInCart(room.id) ? "check-circle" : "cart-plus"}
+          size={24}
+          color={isInCart(room.id) ? "#4CAF50" : "#FF9800"}
         />
       </TouchableOpacity>
     </Pressable>
@@ -62,8 +65,8 @@ export default function Rooms() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Our Rooms</Text>
-        <TouchableOpacity 
-          style={styles.cartIcon} 
+        <TouchableOpacity
+          style={styles.cartIcon}
           onPress={() => router.push('/Cart')}
           disabled={totalItems === 0}
         >
@@ -76,6 +79,12 @@ export default function Rooms() {
         </TouchableOpacity>
       </View>
 
+      <TouchableOpacity onPress={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}>
+        <Text style={styles.sortText}>
+          Sort: {sortOrder === 'asc' ? 'Low to High' : 'High to Low'}
+        </Text>
+      </TouchableOpacity>
+
       <TextInput
         style={styles.searchInput}
         placeholder="Search room name..."
@@ -85,23 +94,21 @@ export default function Rooms() {
       />
 
       <FlatList
-        data={filteredRooms}
+        data={sortedRooms}
         keyExtractor={item => item.id}
         renderItem={renderRoomItem}
         contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>No rooms found</Text>
-        }
+        ListEmptyComponent={<Text style={styles.emptyText}>No rooms found</Text>}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    padding: 20, 
-    backgroundColor: '#FFF8F2' 
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#FFF8F2'
   },
   header: {
     flexDirection: 'row',
@@ -109,33 +116,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  title: { 
-    fontSize: 24, 
-    fontWeight: 'bold', 
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
     color: '#E64A19',
   },
+  sortText: {
+    fontSize: 14,
+    color: '#FF9800',
+    marginBottom: 10,
+  },
   searchInput: {
-    height: 48, 
-    borderColor: '#FFCCBC', 
-    borderWidth: 1, 
+    height: 48,
+    borderColor: '#FFCCBC',
+    borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 16, 
-    marginBottom: 20, 
+    paddingHorizontal: 16,
+    marginBottom: 20,
     backgroundColor: '#FFF',
     fontSize: 16,
     color: '#333',
   },
-  listContent: { 
-    paddingBottom: 20 
+  listContent: {
+    paddingBottom: 20
   },
   roomItem: {
-    flexDirection: 'row', 
-    alignItems: 'center', 
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: 'white',
-    padding: 16, 
-    borderRadius: 12, 
-    marginBottom: 12, 
-    borderWidth: 1, 
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
     borderColor: '#FFE0B2',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -143,25 +155,25 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  roomImage: { 
-    width: 80, 
-    height: 80, 
-    borderRadius: 8, 
-    backgroundColor: '#eee' 
+  roomImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: '#eee'
   },
-  roomInfo: { 
+  roomInfo: {
     flex: 1,
     marginLeft: 16,
     marginRight: 8,
   },
-  roomName: { 
-    fontSize: 18, 
-    fontWeight: '600', 
+  roomName: {
+    fontSize: 18,
+    fontWeight: '600',
     color: '#333',
     marginBottom: 4,
   },
-  roomPrice: { 
-    fontSize: 16, 
+  roomPrice: {
+    fontSize: 16,
     color: '#FF9800',
     fontWeight: '500',
     marginBottom: 4,
