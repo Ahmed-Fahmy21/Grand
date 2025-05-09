@@ -31,13 +31,10 @@ const LoginScreen = () => {
         case 'auth/invalid-email':
           errorMessage = 'The email address is not valid.';
           break;
-        case 'auth/user-disabled':
-          errorMessage = 'This account has been disabled.';
-          break;
         case 'auth/user-not-found':
           errorMessage = 'No account found with this email.';
           break;
-        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
           errorMessage = 'Incorrect password. Please try again.';
           break;
         case 'auth/network-request-failed':

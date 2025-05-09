@@ -5,6 +5,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { FontAwesome } from '@expo/vector-icons';
 import { useCart } from '../../context/CartContext';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { format } from 'date-fns';
 
 export default function RoomDetails() {
   const { id } = useLocalSearchParams();
@@ -13,6 +15,11 @@ export default function RoomDetails() {
   const [error, setError] = useState(null);
   const router = useRouter();
   const { cart, addToCart, removeFromCart, totalItems } = useCart();
+  const [checkInDate, setCheckInDate] = useState(new Date());
+  const [checkOutDate, setCheckOutDate] = useState(new Date(Date.now() + 86400000)); // Default to tomorrow
+  const [showCheckInPicker, setShowCheckInPicker] = useState(false);
+  const [showCheckOutPicker, setShowCheckOutPicker] = useState(false);
+  const [nights, setNights] = useState(1);
 
   useEffect(() => {
     const fetchRoom = async () => {
@@ -36,17 +43,54 @@ export default function RoomDetails() {
     fetchRoom();
   }, [id]);
 
+  useEffect(() => {
+    // Calculate nights when dates change
+    const diffTime = Math.abs(checkOutDate - checkInDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    setNights(diffDays);
+  }, [checkInDate, checkOutDate]);
+
+  const handleCheckInChange = (event, selectedDate) => {
+    setShowCheckInPicker(false);
+    if (selectedDate) {
+      setCheckInDate(selectedDate);
+      // Ensure checkout is after checkin
+      if (selectedDate >= checkOutDate) {
+        const newCheckOut = new Date(selectedDate);
+        newCheckOut.setDate(newCheckOut.getDate() + 1);
+        setCheckOutDate(newCheckOut);
+      }
+    }
+  };
+
+  const handleCheckOutChange = (event, selectedDate) => {
+    setShowCheckOutPicker(false);
+    if (selectedDate && selectedDate > checkInDate) {
+      setCheckOutDate(selectedDate);
+    } else {
+      Alert.alert('Invalid Date', 'Check-out date must be after check-in date');
+    }
+  };
+
   const handleCartAction = () => {
     if (!room) return;
+
+    const roomWithDates = {
+      ...room,
+      checkInDate,
+      checkOutDate,
+      nights,
+      totalPrice: room.price * nights
+    };
 
     if (isInCart) {
       removeFromCart(room.id);
       Alert.alert('Removed from Cart', `${room.name} has been removed from your cart`);
     } else {
-      addToCart(room);
+      addToCart(roomWithDates);
       Alert.alert(
         'Added to Cart',
-        `${room.name} has been added to your cart`,
+        `${room.name} for ${nights} night(s) has been added to your cart`,
         [
           { text: 'Continue Browsing', style: 'cancel' },
           { text: 'View Cart', onPress: () => router.push('/Cart') }
@@ -112,6 +156,58 @@ export default function RoomDetails() {
         <Text style={styles.name}>{room.name}</Text>
         <Text style={styles.price}>${room.price} / night</Text>
 
+        {/* Date Selection Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Select Dates</Text>
+          
+          <View style={styles.dateRow}>
+            <View style={styles.dateInputContainer}>
+              <Text style={styles.dateLabel}>Check-in</Text>
+              <TouchableOpacity 
+                style={styles.dateInput}
+                onPress={() => setShowCheckInPicker(true)}
+              >
+                <FontAwesome name="calendar" size={16} color="#555" />
+                <Text style={styles.dateText}>{format(checkInDate, 'MMM dd, yyyy')}</Text>
+              </TouchableOpacity>
+              {showCheckInPicker && (
+                <DateTimePicker
+                  value={checkInDate}
+                  mode="date"
+                  display="default"
+                  onChange={handleCheckInChange}
+                  minimumDate={new Date()}
+                />
+              )}
+            </View>
+
+            <View style={styles.dateInputContainer}>
+              <Text style={styles.dateLabel}>Check-out</Text>
+              <TouchableOpacity 
+                style={styles.dateInput}
+                onPress={() => setShowCheckOutPicker(true)}
+              >
+                <FontAwesome name="calendar" size={16} color="#555" />
+                <Text style={styles.dateText}>{format(checkOutDate, 'MMM dd, yyyy')}</Text>
+              </TouchableOpacity>
+              {showCheckOutPicker && (
+                <DateTimePicker
+                  value={checkOutDate}
+                  mode="date"
+                  display="default"
+                  onChange={handleCheckOutChange}
+                  minimumDate={new Date(checkInDate.getTime() + 86400000)}
+                />
+              )}
+            </View>
+          </View>
+
+          <View style={styles.nightsContainer}>
+            <Text style={styles.nightsText}>{nights} {nights === 1 ? 'night' : 'nights'}</Text>
+            <Text style={styles.totalPriceText}>Total: ${(room.price * nights).toFixed(2)}</Text>
+          </View>
+        </View>
+
         {room.description && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Description</Text>
@@ -142,7 +238,7 @@ export default function RoomDetails() {
           color="white" 
         />
         <Text style={styles.cartButtonText}>
-          {isInCart ? 'Added to Cart' : 'Add to Cart'}
+          {isInCart ? 'Added to Cart' : `Book for $${(room.price * nights).toFixed(2)}`}
         </Text>
       </TouchableOpacity>
     </ScrollView>
@@ -241,6 +337,48 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 10
+  },
+  dateRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15
+  },
+  dateInputContainer: {
+    width: '48%'
+  },
+  dateLabel: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 5
+  },
+  dateInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd'
+  },
+  dateText: {
+    fontSize: 16,
+    marginLeft: 10,
+    color: '#333'
+  },
+  nightsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10
+  },
+  nightsText: {
+    fontSize: 16,
+    color: '#555'
+  },
+  totalPriceText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#E64A19'
   },
   description: {
     fontSize: 16,

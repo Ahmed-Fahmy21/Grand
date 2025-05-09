@@ -69,16 +69,7 @@ export default function Layout() {
             ),
           }}
         />
-        {/* <Tabs.Screen
-          name="auth"
-          options={{
-            title: "Auth",
-            headerShown: false,
-            tabBarIcon: ({ color }) => (
-              <FontAwesome name="user" size={24} color={color} />
-            ),
-          }}
-        /> */}
+
         <Tabs.Screen
           name="rooms"
           options={{
@@ -96,9 +87,19 @@ export default function Layout() {
             headerShown: true,
             tabBarIcon: ({ color }) => (
               <FontAwesome name="cart-plus" size={24} color={color} />
+            ),          
+          }}
+      />
 
-),          
-}}
+                <Tabs.Screen
+          name="bookings"
+          options={{
+            title: "Booking",
+            headerShown: false,
+            tabBarIcon: ({ color }) => (
+              <FontAwesome name="calendar" size={24} color={color} />
+            ),
+          }}
         />
       </Tabs>
     </CartProvider>
