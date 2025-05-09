@@ -1,74 +1,68 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, Dimensions, Image, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, Dimensions, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-import room1 from '../assets/room-1.jpg';
-import room2 from '../assets/room2.jpg';
-import room3 from '../assets/room3.jpg';
-
-const rooms = [
-  {
-    id: '1',
-    name: 'Double Room',
-    features: ['2 Beds', '1 Bath'],
-    description: 'A comfortable room featuring a large double bed.',
-    image: room1,
-  },
-  {
-    id: '2',
-    name: 'Comfort Suite',
-    features: ['1 Bed', '1 Bath', 'Wifi'],
-    description: 'Relax in style with our comfortable suites.',
-    image: room2,
-  },
-  {
-    id: '3',
-    name: 'Luxury Room',
-    features: ['3 Beds', '2 Baths', 'Wifi'],
-    description: 'A lavish room with elegant decor and modern amenities.',
-    image: room3,
-  },
-];
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase'; // adjust path as needed
 
 const { width: windowWidth } = Dimensions.get('window');
 
 export default function RoomsSection() {
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const renderItem = ({ item }) => {
-    return (
-      <View style={[styles.card, { width: windowWidth * 0.9 }]}>      
-        <Image source={item.image} style={styles.cardImage} resizeMode="cover" />
-        <View style={styles.cardInfo}>
-          <Text style={styles.cardTitle}>{item.name}</Text>
-          <View style={styles.featuresRow}>
-            {item.features.map(feature => {
-              const iconName = feature.includes('Bed')
-                ? 'bed'
-                : feature.includes('Bath')
-                ? 'bath'
-                : 'wifi';
-              return (
-                <View style={styles.feature} key={feature}>
-                  <FontAwesome5 name={iconName} size={16} color="#E64A19" style={styles.featureIcon} />
-                  <Text style={styles.featureText}>{feature}</Text>
-                </View>
-              );
-            })}
-          </View>
-          <Text style={styles.cardDesc}>{item.description}</Text>
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'rooms'));
+        const fetchedRooms = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setRooms(fetchedRooms);
+      } catch (error) {
+        console.error('Error fetching rooms:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRooms();
+  }, []);
+
+  const renderItem = ({ item }) => (
+    <View style={[styles.card, { width: windowWidth * 0.9 }]}>
+      <Image source={{ uri: item.image }} style={styles.cardImage} resizeMode="cover" />
+      <View style={styles.cardInfo}>
+        <Text style={styles.cardTitle}>{item.name}</Text>
+        <View style={styles.featuresRow}>
+          {item.features.map((feature, index) => {
+            const iconName = feature.includes('Bed')
+              ? 'bed'
+              : feature.includes('Bath')
+              ? 'bath'
+              : 'wifi';
+            return (
+              <View style={styles.feature} key={index}>
+                <FontAwesome5 name={iconName} size={16} color="#E64A19" style={styles.featureIcon} />
+                <Text style={styles.featureText}>{feature}</Text>
+              </View>
+            );
+          })}
         </View>
+        <Text style={styles.cardDesc}>{item.description}</Text>
       </View>
-    );
-  };
+    </View>
+  );
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#E64A19" style={{ marginTop: 50 }} />;
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>Explore Our Rooms</Text>
-
-      
-
       <FlatList
         data={rooms}
         keyExtractor={item => item.id}
@@ -82,6 +76,8 @@ export default function RoomsSection() {
     </View>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {
