@@ -3,13 +3,13 @@ import { getAuth } from "@firebase/auth";
 import { getFirestore } from "@firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCPi1brBcO4KK8JU7WLh_vvmGSmjxwzcqM",
-  authDomain: "grand-18c1d.firebaseapp.com",
-  projectId: "grand-18c1d",
-  storageBucket: "grand-18c1d.firebasestorage.app",
-  messagingSenderId: "933701558109",
-  appId: "1:933701558109:web:9bd6f8998113cdafa952b4",
-  measurementId: "G-LM3XQ75DPK"
+  apiKey: "AIzaSyAwj-JXEVUpXgcAvosfjstd1VAC2W4SerA",
+  authDomain: "grand-hotel-181ff.firebaseapp.com",
+  projectId: "grand-hotel-181ff",
+  storageBucket: "grand-hotel-181ff.firebasestorage.app",
+  messagingSenderId: "493927339643",
+  appId: "1:493927339643:web:b8d0cff30aced33652f4de",
+  measurementId: "G-355EBNP3Y9"
 };
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
