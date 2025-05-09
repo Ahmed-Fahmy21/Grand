@@ -31,11 +31,12 @@
     },
     "plugins": [
       "expo-router",
-        "expo-image-picker",
-        {
-          "photosPermission": "The app accesses your photos to let you set your profile picture.",
-          "cameraPermission": "The app accesses your camera to let you take profile pictures."
-        }
+      [
+      "expo-image-picker",
+      {
+        "photosPermission": "The app accesses your photos to let you set your profile picture.",
+        "cameraPermission": "The app accesses your camera to let you take profile pictures."
+      }
       ]
     ]
   }
