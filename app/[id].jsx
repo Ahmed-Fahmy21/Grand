@@ -2,7 +2,7 @@ import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView, Touchable
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { database } from '../config/firebase';
 import { FontAwesome } from '@expo/vector-icons';
 import { useCart } from '../context/CartContext';
 
@@ -17,7 +17,7 @@ export default function RoomDetails() {
   useEffect(() => {
     const fetchRoom = async () => {
       try {
-        const roomRef = doc(db, 'rooms', id);
+        const roomRef = doc(database, 'rooms', id);
         const snap = await getDoc(roomRef);
 
         if (!snap.exists()) {

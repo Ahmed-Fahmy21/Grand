@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TextInput, FlatList, Pressable, Image, TouchableOpacity } from 'react-native';
-import { db } from '../config/firebase';
+import { database } from '../config/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
@@ -15,7 +15,7 @@ export default function Rooms() {
   useEffect(() => {
     (async () => {
       try {
-        const snap = await getDocs(collection(db, 'rooms'));
+        const snap = await getDocs(collection(database, 'rooms'));
         setRooms(snap.docs.map(d => ({ id: d.id, ...d.data() })));
       } catch (e) {
         console.error('Error fetching rooms:', e);
