@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator, Modal, Pressable, StyleSheet ,Button } from 'react-native';
+import {
+    View, Text, TextInput, TouchableOpacity, Image,
+    ActivityIndicator, Modal, Pressable, StyleSheet, Button
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { signOut, updateProfile, updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential, sendEmailVerification, onAuthStateChanged } from '@firebase/auth';
-import { ref, set, onValue, update } from 'firebase/database';
-import { auth, database } from '../config/firebase';
+import {
+    signOut, updateProfile, updateEmail, updatePassword,
+    EmailAuthProvider, reauthenticateWithCredential, sendEmailVerification,
+    onAuthStateChanged
+} from '@firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { ref as dbRef, update, onValue, getDatabase } from 'firebase/database';
+import { auth, db } from '../config/firebase';
 
 const ProfileScreen = ({ navigation }) => {
     const [state, setState] = useState({
@@ -34,19 +42,20 @@ const ProfileScreen = ({ navigation }) => {
                     },
                     image: user.photoURL
                 });
-                const userPhotoRef = ref(database, 'users/' + user.uid + '/photoURL');
+
+                const userPhotoRef = dbRef(getDatabase(), 'users/' + user.uid + '/photoURL');
                 onValue(userPhotoRef, (snapshot) => {
                     const photoURL = snapshot.val();
-                    if (photoURL && photoURL !== state.image) { // Prevent unnecessary updates
+                    if (photoURL && photoURL !== state.image) {
                         updateState({ image: photoURL });
                     }
                 });
             } else {
-                updateState({ user: null }); // Handle user logout
+                updateState({ user: null });
             }
         });
         return unsubscribe;
-    }, [state.image]); // Re-run if image changes to update listener if needed
+    }, [state.image]);
 
     const handleImage = async (type) => {
         try {
@@ -67,24 +76,20 @@ const ProfileScreen = ({ navigation }) => {
 
                 reader.onloadend = async () => {
                     const base64data = reader.result;
-                    const userDatabaseRef = ref(database, 'users/' + auth.currentUser.uid);
-                    await update(userDatabaseRef, { photoURL: base64data }); // Use update
+                    const userDbRef = dbRef(getDatabase(), 'users/' + auth.currentUser.uid);
+                    await update(userDbRef, { photoURL: base64data });
                     await updateProfile(auth.currentUser, { photoURL: base64data });
 
                     updateState({
                         image: base64data,
                         modalVisible: false,
                         loading: false,
-                        success: 'تم تحديث الصورة بنجاح'
+                        success: 'Photo updated successfully'
                     });
                 };
             }
         } catch (error) {
-            console.error("Error uploading image:", error);
-            updateState({
-                error: 'حدث خطأ أثناء رفع الصورة',
-                loading: false
-            });
+            updateState({ error: 'Error uploading photo', loading: false });
         }
     };
 
@@ -93,19 +98,22 @@ const ProfileScreen = ({ navigation }) => {
         try {
             const displayName = `${state.formData.firstName} ${state.formData.lastName}`;
             const photoURL = state.image;
-
             const promises = [];
+
             if (displayName !== state.user.displayName || photoURL !== state.user.photoURL) {
                 promises.push(updateProfile(auth.currentUser, { displayName, photoURL }));
-                const userDatabaseRef = ref(database, 'users/' + auth.currentUser.uid);
-                promises.push(update(userDatabaseRef, {
-                    firstName: state.formData.firstName,
-                    lastName: state.formData.lastName,
-                    photoURL: state.image,
-                    phone: state.formData.phone,
-                    email: state.formData.email // Keep email in database for consistency
-                }));
+
+                const userDbRef = dbRef(getDatabase(), 'users/' + auth.currentUser.uid);
+                promises.push(update(userDbRef, { photoURL }));
             }
+
+            const userDocRef = doc(db, 'users', auth.currentUser.uid);
+            promises.push(setDoc(userDocRef, {
+                firstName: state.formData.firstName,
+                lastName: state.formData.lastName,
+                phone: state.formData.phone,
+                email: state.formData.email
+            }, { merge: true }));
 
             if (state.formData.email !== state.user.email) {
                 const credential = EmailAuthProvider.credential(state.user.email, state.currentPassword);
@@ -117,10 +125,15 @@ const ProfileScreen = ({ navigation }) => {
             await Promise.all(promises);
 
             updateState({
-                success: 'Profile updated!',
+                success: 'Profile updated successfully',
                 editMode: false,
                 loading: false,
-                user: { ...auth.currentUser, displayName, photoURL, email: state.formData.email } // Update user in state
+                user: {
+                    ...auth.currentUser,
+                    displayName,
+                    photoURL,
+                    email: state.formData.email
+                }
             });
         } catch (error) {
             updateState({ error: error.message, loading: false });
@@ -128,20 +141,17 @@ const ProfileScreen = ({ navigation }) => {
     };
 
     const handlePasswordChange = async () => {
-        if (!state.currentPassword || !state.newPassword) return updateState({ error: 'Enter both passwords' });
-        if (state.newPassword.length < 6) return updateState({ error: 'Password too short' });
+        if (!state.currentPassword || !state.newPassword)
+            return updateState({ error: 'Enter both current and new password' });
+        if (state.newPassword.length < 6)
+            return updateState({ error: 'New password is too short' });
 
-        updateState({ loading: true, error: null });
+        updateState({ loading: true });
         try {
             const credential = EmailAuthProvider.credential(state.user.email, state.currentPassword);
             await reauthenticateWithCredential(state.user, credential);
             await updatePassword(state.user, state.newPassword);
-            updateState({
-                success: 'Password changed!',
-                currentPassword: '',
-                newPassword: '',
-                loading: false
-            });
+            updateState({ success: 'Password changed successfully', currentPassword: '', newPassword: '', loading: false });
         } catch (error) {
             updateState({ error: error.message, loading: false });
         }
