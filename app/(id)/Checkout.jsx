@@ -22,7 +22,7 @@ export default function CheckoutScreen() {
     country: ''
   });
 
-  // Inside your CheckoutScreen component:
+  
 const handlePayment = async () => {
   if (cart.length === 0) {
     Alert.alert('Empty Cart', 'Your cart is empty');
@@ -44,12 +44,12 @@ const handlePayment = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
 
-    // Create booking for each cart item
+    
     const bookings = await Promise.all(
       cart.map(async (item) => {
         return await createBooking({
           roomId: item.id,
-          roomName: item.name, // Add room name from cart item
+          roomName: item.name, 
           userId: user.uid,
           checkInDate: item.checkInDate,
           checkOutDate: item.checkOutDate,
@@ -61,7 +61,7 @@ const handlePayment = async () => {
       })
     );
 
-    // Process payment (simulated)
+    
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     Alert.alert(
