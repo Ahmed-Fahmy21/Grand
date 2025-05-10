@@ -21,7 +21,7 @@ const LoginScreen = () => {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.replace('/profile'); // Redirect to app after successful login
+      router.replace('/profile'); 
     } catch (error) {
       console.log('Login error:', error);
       
