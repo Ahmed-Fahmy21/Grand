@@ -134,7 +134,7 @@ const ProfileScreen = () => {
       const displayName = `${firstName} ${lastName}`.trim();
       const updates = {};
 
-      // تحديث الاسم أو الصورة إذا كانت قد تغيرت
+      
       if (displayName !== state.user.displayName || state.image !== state.user.photoURL) {
         await updateProfile(auth.currentUser, {
           displayName,
@@ -144,7 +144,7 @@ const ProfileScreen = () => {
         updates.photoURL = state.image;
       }
 
-      // تحديث البريد الإلكتروني إذا كان قد تغير
+    
       if (email !== state.user.email) {
         const credential = EmailAuthProvider.credential(
           state.user.email,
@@ -156,7 +156,7 @@ const ProfileScreen = () => {
         updates.email = email;
       }
 
-      // تحديث البيانات في Firebase Realtime Database
+      
       await update(dbRef(getDatabase(), `users/${auth.currentUser.uid}`), {
         ...updates,
         firstName,
@@ -165,7 +165,7 @@ const ProfileScreen = () => {
         lastUpdated: Date.now()
       });
 
-      // تحديث البيانات في Firestore
+      
       await setDoc(doc(db, 'users', auth.currentUser.uid), {
         firstName,
         lastName,
@@ -208,16 +208,16 @@ const ProfileScreen = () => {
     }
   };
 
-  // دالة لحذف الصورة
+  
   const handleRemoveImage = async () => {
     try {
       updateState({ loading: true });
 
-      // حذف الصورة في Firebase Realtime Database
+    
       const userDbRef = dbRef(getDatabase(), 'users/' + auth.currentUser.uid);
       await update(userDbRef, { photoURL: null });
 
-      // حذف الصورة في Firebase Authentication
+      
       await updateProfile(auth.currentUser, { photoURL: null });
 
       updateState({
@@ -285,7 +285,7 @@ const ProfileScreen = () => {
           </View>
         </TouchableOpacity>
 
-        {/* إضافة زر لحذف الصورة */}
+        
         {state.image && (
           <TouchableOpacity 
             onPress={handleRemoveImage}
