@@ -19,7 +19,7 @@ export default function BookingsScreen() {
       setBookings([]);
 
       if (unsubscribeFromBookings) {
-        unsubscribeFromBookings(); // stop previous Firestore listener
+        unsubscribeFromBookings(); 
         unsubscribeFromBookings = null;
       }
 
