@@ -85,7 +85,7 @@ export default function Rooms() {
         </TouchableOpacity>
       </View>
 
-      {/* Sort by price button */}
+      
       <TouchableOpacity
         onPress={() => setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'))}
       >
