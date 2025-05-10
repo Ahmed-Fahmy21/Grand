@@ -36,9 +36,9 @@ export default function Layout() {
     <CartProvider>
       <Tabs
         screenOptions={{
-          // This will hide any routes with square brackets in the name
+          
           tabBarItemStyle: ({ route }) => {
-            const hiddenRoutes = ['[id]']; // Add any other routes you want to hide
+            const hiddenRoutes = ['[id]']; 
             return {
               display: hiddenRoutes.includes(route.name) ? 'none' : 'flex'
             }
