@@ -21,7 +21,7 @@ const LoginScreen = () => {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.replace('/'); // Redirect to app after successful login
+      router.replace('/'); 
     } catch (error) {
       console.log('Login error:', error);
       
@@ -35,7 +35,7 @@ const LoginScreen = () => {
           errorMessage = 'No account found with this email.';
           break;
         case 'auth/invalid-credential':
-          errorMessage = 'Incorrect password. Please try again.';
+          errorMessage = 'Incorrect credential. Please try again.';
           break;
         case 'auth/network-request-failed':
           errorMessage = 'Network error. Please check your internet connection.';

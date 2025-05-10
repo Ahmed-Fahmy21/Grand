@@ -22,20 +22,15 @@ export default function CheckoutScreen() {
     country: ''
   });
 
-  // Inside your CheckoutScreen component:
 const handlePayment = async () => {
   if (cart.length === 0) {
     Alert.alert('Empty Cart', 'Your cart is empty');
     return;
   }
 
-  if (!cardData?.valid || !cardData?.values.number) {
-    Alert.alert('Invalid Card', 'Please enter valid Visa card details');
-    return;
-  }
 
-  if (!billingDetails.name || !billingDetails.email) {
-    Alert.alert('Missing Information', 'Please fill in all required billing details');
+  if (!cardData?.valid || !billingDetails.name || !billingDetails.email) {
+    Alert.alert('Missing Information', 'Please fill in all required fields');
     return;
   }
 
@@ -44,29 +39,30 @@ const handlePayment = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
 
-    // Create booking for each cart item
-    const bookings = await Promise.all(
-      cart.map(async (item) => {
-        return await createBooking({
-          roomId: item.id,
-          roomName: item.name, // Add room name from cart item
-          userId: user.uid,
-          checkInDate: item.checkInDate,
-          checkOutDate: item.checkOutDate,
-          nights: item.nights,
-          totalPrice: item.totalPrice,
-          guestName: billingDetails.name,
-          guestEmail: billingDetails.email,
-        });
-      })
-    );
 
-    // Process payment (simulated)
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    const bookingPromises = cart.map(async (item) => {
+      const bookingData = {
+        roomId: item.id,
+        roomName: item.name,
+        userId: user.uid,
+        checkInDate: item.checkInDate,
+        checkOutDate: item.checkOutDate,
+        nights: item.nights,
+        totalPrice: item.totalPrice,
+        guestName: billingDetails.name,
+        guestEmail: billingDetails.email,
+
+      };
+      
+      return await createBooking(bookingData);
+    });
+
+
+    const bookingResults = await Promise.all(bookingPromises);
     
     Alert.alert(
       'Booking Confirmed',
-      `Your booking has been created!`,
+      `Successfully created ${bookingResults.length} bookings!`,
       [{
         text: 'OK',
         onPress: () => {
@@ -77,7 +73,8 @@ const handlePayment = async () => {
     );
     
   } catch (error) {
-    Alert.alert('Error', error.message);
+    console.error('Checkout error:', error);
+    Alert.alert('Error', `Failed to complete checkout: ${error.message}`);
   } finally {
     setLoading(false);
   }
