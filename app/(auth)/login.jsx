@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from '@firebase/auth';
 import { auth } from '../../config/firebase';
 import { Link, router } from 'expo-router';
@@ -12,7 +20,7 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     setError(null);
-    
+
     if (!email || !password) {
       setError('Please enter both email and password');
       return;
@@ -21,12 +29,11 @@ const LoginScreen = () => {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.replace('/profile'); 
+      router.replace('/');
     } catch (error) {
       console.log('Login error:', error);
-      
+
       let errorMessage = 'Login failed. Please try again.';
-      
       switch (error.code) {
         case 'auth/invalid-email':
           errorMessage = 'The email address is not valid.';
@@ -35,7 +42,7 @@ const LoginScreen = () => {
           errorMessage = 'No account found with this email.';
           break;
         case 'auth/invalid-credential':
-          errorMessage = 'Incorrect password. Please try again.';
+          errorMessage = 'Incorrect credential. Please try again.';
           break;
         case 'auth/network-request-failed':
           errorMessage = 'Network error. Please check your internet connection.';
@@ -46,7 +53,7 @@ const LoginScreen = () => {
         default:
           errorMessage = error.message || 'An unknown error occurred.';
       }
-      
+
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -61,11 +68,9 @@ const LoginScreen = () => {
 
     try {
       await sendPasswordResetEmail(auth, email);
-      Alert.alert(
-        'Password Reset Sent',
-        `A password reset link has been sent to ${email}`,
-        [{ text: 'OK' }]
-      );
+      Alert.alert('Password Reset Sent', `A password reset link has been sent to ${email}`, [
+        { text: 'OK' },
+      ]);
     } catch (error) {
       setError('Failed to send reset email. Please check your email address.');
     }
@@ -75,13 +80,13 @@ const LoginScreen = () => {
     <View style={styles.container}>
       <View style={styles.authContainer}>
         <Text style={styles.title}>Login</Text>
-        
+
         {error && (
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
-        
+
         <TextInput
           style={[styles.input, error?.includes('email') && styles.inputError]}
           value={email}
@@ -97,27 +102,27 @@ const LoginScreen = () => {
           placeholder="Password"
           secureTextEntry
         />
-        
-        <View style={styles.buttonContainer}>
+
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleLogin}
+          disabled={loading}
+        >
           {loading ? (
-            <ActivityIndicator size="small" color="#3498db" />
+            <ActivityIndicator color="#fff" />
           ) : (
-            <Button 
-              title="Login" 
-              onPress={handleLogin} 
-              color="#3498db" 
-            />
+            <Text style={styles.buttonText}>Login</Text>
           )}
-        </View>
-        
+        </TouchableOpacity>
+
         <TouchableOpacity onPress={handleResetPassword}>
           <Text style={styles.linkText}>Forgot password?</Text>
         </TouchableOpacity>
-        
-        <View style={styles.bottomContainer}>
+
+        <View style={styles.link}>
           <Link href="/register" asChild>
             <TouchableOpacity>
-              <Text style={styles.toggleText}>Don't have an account? Register</Text>
+              <Text style={styles.linkText}>Don't have an account? Register</Text>
             </TouchableOpacity>
           </Link>
         </View>
@@ -130,50 +135,68 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#f0f0f0',
-  },
-  linkText: {
-    color: '#3498db',
-    textAlign: 'center',
-    marginBottom: 20,
+    padding: 30,
+    backgroundColor: '#FFF8F2',
   },
   authContainer: {
-    width: '80%',
-    maxWidth: 400,
     backgroundColor: '#fff',
-    padding: 16,
+    padding: 20,
     borderRadius: 8,
     elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   title: {
     fontSize: 24,
-    marginBottom: 16,
+    fontWeight: 'bold',
+    marginBottom: 30,
+    color: '#E64A19',
     textAlign: 'center',
   },
   input: {
-    height: 40,
-    borderColor: '#ddd',
+    height: 50,
     borderWidth: 1,
-    marginBottom: 16,
-    padding: 8,
-    borderRadius: 4,
+    borderColor: '#FFCCBC',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    marginBottom: 20,
+    backgroundColor: 'white',
+    fontSize: 16,
+    color: '#333',
   },
   inputError: {
-    borderColor: '#e74c3c',
+    borderColor: '#D32F2F',
   },
-  buttonContainer: {
-    marginBottom: 16,
-    minHeight: 40,
-    justifyContent: 'center',
+  button: {
+    backgroundColor: '#FF9800',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
-  toggleText: {
-    color: '#3498db',
-    textAlign: 'center',
+  buttonDisabled: {
+    opacity: 0.8,
   },
-  bottomContainer: {
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  link: {
     marginTop: 20,
+  },
+  linkText: {
+    color: '#E64A19',
+    textAlign: 'center',
+    fontSize: 16,
+    textDecorationLine: 'underline',
   },
   errorContainer: {
     backgroundColor: '#fdecea',
@@ -182,8 +205,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   errorText: {
-    color: '#d32f2f',
+    color: '#D32F2F',
     textAlign: 'center',
+    fontSize: 15,
   },
 });
 

@@ -33,7 +33,6 @@ export default function Rooms() {
     );
 
   const isInCart = roomId => cart.some(item => item.id === roomId);
-
   const renderRoomItem = ({ item: room }) => (
     <Pressable
       style={styles.roomItem}
@@ -47,27 +46,27 @@ export default function Rooms() {
           {room.description}
         </Text>
       </View>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.cartButton}
         onPress={e => {
           e.stopPropagation();
           isInCart(room.id) ? removeFromCart(room.id) : addToCart(room);
         }}
       >
+
         <FontAwesome
           name={isInCart(room.id) ? 'check-circle' : 'cart-plus'}
           size={24}
           color={isInCart(room.id) ? '#4CAF50' : '#FF9800'}
         />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </Pressable>
   );
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Our Rooms</Text>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.cartIcon}
           onPress={() => router.push('/Cart')}
           disabled={totalItems === 0}
@@ -82,10 +81,10 @@ export default function Rooms() {
               <Text style={styles.cartBadgeText}>{totalItems}</Text>
             </View>
           )}
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
-      
+     
       <TouchableOpacity
         onPress={() => setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'))}
       >

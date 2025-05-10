@@ -16,7 +16,7 @@ export default function RoomDetails() {
   const router = useRouter();
   const { cart, addToCart, removeFromCart, totalItems } = useCart();
   const [checkInDate, setCheckInDate] = useState(new Date());
-  const [checkOutDate, setCheckOutDate] = useState(new Date(Date.now() + 86400000)); 
+  const [checkOutDate, setCheckOutDate] = useState(new Date(Date.now() + 86400000)); // Default to tomorrow
   const [showCheckInPicker, setShowCheckInPicker] = useState(false);
   const [showCheckOutPicker, setShowCheckOutPicker] = useState(false);
   const [nights, setNights] = useState(1);
@@ -118,9 +118,9 @@ export default function RoomDetails() {
         <Text style={styles.errorText}>{error}</Text>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => router.push('/rooms')}
         >
-          <Text style={styles.backButtonText}>Go Back</Text>
+          <Text style={styles.backButtonText}>Browse Rooms</Text>
         </TouchableOpacity>
       </View>
     );
@@ -129,7 +129,7 @@ export default function RoomDetails() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.push('/rooms')} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={24} color="#E64A19" />
         </TouchableOpacity>
         <TouchableOpacity 
@@ -146,6 +146,7 @@ export default function RoomDetails() {
         </TouchableOpacity>
       </View>
 
+      
       <Image 
         source={{ uri: room.image }} 
         style={styles.image}
@@ -156,7 +157,7 @@ export default function RoomDetails() {
         <Text style={styles.name}>{room.name}</Text>
         <Text style={styles.price}>${room.price} / night</Text>
 
-        
+       
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Select Dates</Text>
           
@@ -246,6 +247,7 @@ export default function RoomDetails() {
 }
 
 const styles = StyleSheet.create({
+  
   container: {
     flexGrow: 1,
     backgroundColor: '#FFF8F2',
@@ -308,6 +310,17 @@ const styles = StyleSheet.create({
     color: '#555',
     textAlign: 'center',
     marginBottom: 20
+  },
+  backButton: {
+    backgroundColor: '#FF9800',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 20
+  },
+  backButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600'
   },
   image: {
     width: '100%',

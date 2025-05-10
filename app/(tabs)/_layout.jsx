@@ -36,7 +36,6 @@ export default function Layout() {
     <CartProvider>
       <Tabs
         screenOptions={{
-          
           tabBarItemStyle: ({ route }) => {
             const hiddenRoutes = ['[id]']; 
             return {
@@ -84,7 +83,7 @@ export default function Layout() {
           name="Cart"
           options={{
             title: "Cart",
-            headerShown: true,
+            headerShown: false,
             tabBarIcon: ({ color }) => (
               <FontAwesome name="cart-plus" size={24} color={color} />
             ),          
@@ -105,22 +104,22 @@ export default function Layout() {
           name="chat"
           options={{
             title: "Chat",
-            headerShown: true,
+            headerShown: false,
             tabBarIcon: ({ color }) => (
               <FontAwesome name="comments" size={24} color={color} />
-            ),          
+            ),
           }}
-      />
-      <Tabs.Screen
+        />
+        <Tabs.Screen
           name="profile"
           options={{
             title: "Profile",
-            headerShown: true,
+            headerShown: false,
             tabBarIcon: ({ color }) => (
               <FontAwesome name="user" size={24} color={color} />
-            ),          
+            ),
           }}
-      />
+        />
       </Tabs>
     </CartProvider>
   );

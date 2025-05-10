@@ -134,7 +134,6 @@ const ProfileScreen = () => {
       const displayName = `${firstName} ${lastName}`.trim();
       const updates = {};
 
-      
       if (displayName !== state.user.displayName || state.image !== state.user.photoURL) {
         await updateProfile(auth.currentUser, {
           displayName,
@@ -144,7 +143,6 @@ const ProfileScreen = () => {
         updates.photoURL = state.image;
       }
 
-    
       if (email !== state.user.email) {
         const credential = EmailAuthProvider.credential(
           state.user.email,
@@ -156,7 +154,6 @@ const ProfileScreen = () => {
         updates.email = email;
       }
 
-      
       await update(dbRef(getDatabase(), `users/${auth.currentUser.uid}`), {
         ...updates,
         firstName,
@@ -165,7 +162,6 @@ const ProfileScreen = () => {
         lastUpdated: Date.now()
       });
 
-      
       await setDoc(doc(db, 'users', auth.currentUser.uid), {
         firstName,
         lastName,
@@ -208,16 +204,13 @@ const ProfileScreen = () => {
     }
   };
 
-  
   const handleRemoveImage = async () => {
     try {
       updateState({ loading: true });
 
-    
       const userDbRef = dbRef(getDatabase(), 'users/' + auth.currentUser.uid);
       await update(userDbRef, { photoURL: null });
 
-      
       await updateProfile(auth.currentUser, { photoURL: null });
 
       updateState({
@@ -285,7 +278,6 @@ const ProfileScreen = () => {
           </View>
         </TouchableOpacity>
 
-        
         {state.image && (
           <TouchableOpacity 
             onPress={handleRemoveImage}
