@@ -1,11 +1,10 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, ActivityIndicator,TextInput } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, TextInput } from 'react-native';
 import { useCart } from '../../context/CartContext';
 import { router } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { CreditCardInput } from 'react-native-credit-card-input';
-
 import { createBooking } from '../../components/booking';
 import { getAuth } from 'firebase/auth';
 
@@ -22,63 +21,58 @@ export default function CheckoutScreen() {
     country: ''
   });
 
-const handlePayment = async () => {
-  if (cart.length === 0) {
-    Alert.alert('Empty Cart', 'Your cart is empty');
-    return;
-  }
+  const handlePayment = async () => {
+    if (cart.length === 0) {
+      Alert.alert('Empty Cart', 'Your cart is empty');
+      return;
+    }
 
+    if (!cardData?.valid || !billingDetails.name || !billingDetails.email) {
+      Alert.alert('Missing Information', 'Please fill in all required fields');
+      return;
+    }
 
-  if (!cardData?.valid || !billingDetails.name || !billingDetails.email) {
-    Alert.alert('Missing Information', 'Please fill in all required fields');
-    return;
-  }
+    setLoading(true);
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
 
-  setLoading(true);
-  try {
-    const auth = getAuth();
-    const user = auth.currentUser;
+      const bookingPromises = cart.map(async (item) => {
+        const bookingData = {
+          roomId: item.id,
+          roomName: item.name,
+          userId: user.uid,
+          checkInDate: item.checkInDate,
+          checkOutDate: item.checkOutDate,
+          nights: item.nights,
+          totalPrice: item.totalPrice,
+          guestName: billingDetails.name,
+          guestEmail: billingDetails.email,
+        };
 
+        return await createBooking(bookingData);
+      });
 
-    const bookingPromises = cart.map(async (item) => {
-      const bookingData = {
-        roomId: item.id,
-        roomName: item.name,
-        userId: user.uid,
-        checkInDate: item.checkInDate,
-        checkOutDate: item.checkOutDate,
-        nights: item.nights,
-        totalPrice: item.totalPrice,
-        guestName: billingDetails.name,
-        guestEmail: billingDetails.email,
+      const bookingResults = await Promise.all(bookingPromises);
 
-      };
-      
-      return await createBooking(bookingData);
-    });
-
-
-    const bookingResults = await Promise.all(bookingPromises);
-    
-    Alert.alert(
-      'Booking Confirmed',
-      `Successfully created ${bookingResults.length} bookings!`,
-      [{
-        text: 'OK',
-        onPress: () => {
-          clearCart();
-          router.replace('/(tabs)/bookings');
-        }
-      }]
-    );
-    
-  } catch (error) {
-    console.error('Checkout error:', error);
-    Alert.alert('Error', `Failed to complete checkout: ${error.message}`);
-  } finally {
-    setLoading(false);
-  }
-};
+      Alert.alert(
+        'Booking Confirmed',
+        `Successfully created ${bookingResults.length} bookings!`,
+        [{
+          text: 'OK',
+          onPress: () => {
+            clearCart();
+            router.replace('/(tabs)/bookings');
+          }
+        }]
+      );
+    } catch (error) {
+      console.error('Checkout error:', error);
+      Alert.alert('Error', `Failed to complete checkout: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleBillingChange = (field, value) => {
     setBillingDetails(prev => ({
@@ -153,13 +147,13 @@ const handlePayment = async () => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Billing Information</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, styles.inputBilling]}
               placeholder="Full Name"
               value={billingDetails.name}
               onChangeText={(text) => handleBillingChange('name', text)}
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, styles.inputBilling]}
               placeholder="Email"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -167,20 +161,20 @@ const handlePayment = async () => {
               onChangeText={(text) => handleBillingChange('email', text)}
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, styles.inputBilling]}
               placeholder="Address"
               value={billingDetails.address}
               onChangeText={(text) => handleBillingChange('address', text)}
             />
             <View style={styles.row}>
               <TextInput
-                style={[styles.input, styles.halfInput]}
+                style={[styles.input, styles.halfInput, styles.inputBilling]}
                 placeholder="City"
                 value={billingDetails.city}
                 onChangeText={(text) => handleBillingChange('city', text)}
               />
               <TextInput
-                style={[styles.input, styles.halfInput]}
+                style={[styles.input, styles.halfInput, styles.inputBilling]}
                 placeholder="Postal Code"
                 keyboardType="numeric"
                 value={billingDetails.postalCode}
@@ -188,7 +182,7 @@ const handlePayment = async () => {
               />
             </View>
             <TextInput
-              style={styles.input}
+              style={[styles.input, styles.inputBilling]}
               placeholder="Country"
               value={billingDetails.country}
               onChangeText={(text) => handleBillingChange('country', text)}
@@ -233,7 +227,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     paddingBottom: 40,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#FFF8F2',  // Consistent with login screen background
     minHeight: '100%'
   },
   header: {
@@ -244,7 +238,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    color: '#E64A19',  // Consistent with login screen title color
   },
   emptyContainer: {
     flex: 1,
@@ -258,7 +253,7 @@ const styles = StyleSheet.create({
     marginVertical: 20
   },
   shopButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#FF9800',  // Matching login screen button color
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 8,
@@ -270,110 +265,101 @@ const styles = StyleSheet.create({
     fontWeight: '600'
   },
   section: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 20,
     marginBottom: 15,
+    elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 10,
-    color: '#333'
-  },
-  item: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee'
-  },
-  itemName: {
-    fontSize: 16,
-    color: '#555',
-    fontWeight: '500'
-  },
-  itemDates: {
-    fontSize: 14,
-    color: '#888',
-    marginTop: 4
-  },
-  itemPrice: {
-    fontSize: 16,
-    fontWeight: '600'
-  },
-  cardInput: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    paddingBottom: 8
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15
   },
   input: {
     height: 50,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#FFCCBC',  // Matching login screen input color
     borderRadius: 8,
-    padding: 15,
+    paddingHorizontal: 15,
     marginBottom: 15,
-    backgroundColor: 'white'
+    backgroundColor: 'white',
+    fontSize: 16,
+    color: '#333',
+  },
+  cardInput: {
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    borderColor: '#FFCCBC',
+    borderWidth: 1,
+    marginBottom: 20
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
   halfInput: {
-    width: '48%'
+    flex: 0.48,
+    marginRight: 10
   },
   summary: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 20
+    marginTop: 20
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8
-  },
-  totalRow: {
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 10,
-    marginTop: 5
+    marginVertical: 5
   },
   summaryLabel: {
     fontSize: 16,
-    color: '#666'
+    fontWeight: '500',
+    color: '#333'
   },
   summaryValue: {
     fontSize: 16,
-    fontWeight: '500'
-  },
-  totalLabel: {
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#333'
   },
-  totalValue: {
-    fontWeight: 'bold',
+  totalRow: {
+    marginTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#FFCCBC',
+    paddingTop: 10
+  },
+  totalLabel: {
     fontSize: 18,
-    color: '#4CAF50'
+    fontWeight: 'bold',
+    color: '#E64A19'
+  },
+  totalValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#E64A19'
   },
   payButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#FF9800',  // Matching login screen button color
+    padding: 15,
     borderRadius: 8,
-    padding: 16,
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: 20,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3
   },
   payButtonDisabled: {
-    opacity: 0.7
+    opacity: 0.8
   },
   payButtonText: {
     color: 'white',
     fontSize: 18,
-    fontWeight: 'bold'
-  }
+    fontWeight: '600'
+  },
 });
+

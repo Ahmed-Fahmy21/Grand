@@ -84,7 +84,7 @@ export default function Layout() {
           name="Cart"
           options={{
             title: "Cart",
-            headerShown: true,
+            headerShown: false,
             tabBarIcon: ({ color }) => (
               <FontAwesome name="cart-plus" size={24} color={color} />
             ),          
