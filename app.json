@@ -1,7 +1,5 @@
-
 {
   "expo": {
-
     "name": "Grand",
     "slug": "Grand",
     "scheme": "Grand",
@@ -10,7 +8,8 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-     "plugins": [
+    "plugins": [
+      "expo-router"
     ],
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -24,13 +23,19 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.ahmd_1234567.Grand"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-router"
-    ]
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "cfb34dd4-0dc7-4d50-a9c5-3a5fb32efdf3"
+      }
+    }
   }
 }
