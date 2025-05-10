@@ -16,7 +16,7 @@ export default function RoomDetails() {
   const router = useRouter();
   const { cart, addToCart, removeFromCart, totalItems } = useCart();
   const [checkInDate, setCheckInDate] = useState(new Date());
-  const [checkOutDate, setCheckOutDate] = useState(new Date(Date.now() + 86400000)); // Default to tomorrow
+  const [checkOutDate, setCheckOutDate] = useState(new Date(Date.now() + 86400000)); 
   const [showCheckInPicker, setShowCheckInPicker] = useState(false);
   const [showCheckOutPicker, setShowCheckOutPicker] = useState(false);
   const [nights, setNights] = useState(1);
@@ -44,7 +44,7 @@ export default function RoomDetails() {
   }, [id]);
 
   useEffect(() => {
-    // Calculate nights when dates change
+    
     const diffTime = Math.abs(checkOutDate - checkInDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     setNights(diffDays);
@@ -54,7 +54,7 @@ export default function RoomDetails() {
     setShowCheckInPicker(false);
     if (selectedDate) {
       setCheckInDate(selectedDate);
-      // Ensure checkout is after checkin
+      
       if (selectedDate >= checkOutDate) {
         const newCheckOut = new Date(selectedDate);
         newCheckOut.setDate(newCheckOut.getDate() + 1);
@@ -156,7 +156,7 @@ export default function RoomDetails() {
         <Text style={styles.name}>{room.name}</Text>
         <Text style={styles.price}>${room.price} / night</Text>
 
-        {/* Date Selection Section */}
+        
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Select Dates</Text>
           
